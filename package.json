@@ -1,0 +1,19 @@
+{
+  "name": "cm-modulados-chatbot",
+  "version": "1.0.0",
+  "description": "Chatbot IA para CM Modulados - Móveis Planejados",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:gateway": "npm run dev -w @cm/api-gateway",
+    "dev:chatbot": "npm run dev -w @cm/chatbot-service",
+    "dev:scheduler": "npm run dev -w @cm/scheduler-service",
+    "build": "npm run build -w @cm/shared && npm run build -w @cm/api-gateway && npm run build -w @cm/chatbot-service && npm run build -w @cm/scheduler-service",
+    "db:seed": "npm run seed -w @cm/shared"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
