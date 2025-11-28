@@ -7,8 +7,8 @@ COPY package*.json ./
 COPY packages/shared/package*.json ./packages/shared/
 COPY packages/api-gateway/package*.json ./packages/api-gateway/
 
-# Instalar dependências
-RUN npm ci --omit=dev
+# Instalar TODAS as dependências (incluindo dev para build)
+RUN npm ci
 
 # Copiar código fonte
 COPY packages/shared ./packages/shared
@@ -17,6 +17,9 @@ COPY packages/api-gateway ./packages/api-gateway
 # Build shared primeiro, depois api-gateway
 RUN npm run build -w @cm/shared
 RUN npm run build -w @cm/api-gateway
+
+# Remover devDependencies após o build
+RUN npm prune --omit=dev
 
 # Expor porta
 EXPOSE 3000

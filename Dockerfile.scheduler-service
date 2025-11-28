@@ -7,8 +7,8 @@ COPY package*.json ./
 COPY packages/shared/package*.json ./packages/shared/
 COPY packages/scheduler-service/package*.json ./packages/scheduler-service/
 
-# Instalar dependências
-RUN npm ci --omit=dev
+# Instalar TODAS as dependências (incluindo dev para build)
+RUN npm ci
 
 # Copiar código fonte
 COPY packages/shared ./packages/shared
@@ -17,6 +17,9 @@ COPY packages/scheduler-service ./packages/scheduler-service
 # Build shared primeiro, depois scheduler-service
 RUN npm run build -w @cm/shared
 RUN npm run build -w @cm/scheduler-service
+
+# Remover devDependencies após o build
+RUN npm prune --omit=dev
 
 # Expor porta
 EXPOSE 3002
