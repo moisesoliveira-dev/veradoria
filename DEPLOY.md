@@ -28,52 +28,43 @@ Execute o script `scripts/init.sql` no seu PostgreSQL Railway:
 
 ---
 
-## Passo 3: Criar os 3 Serviços
+## Passo 3: Criar os 3 Serviços (usando Dockerfile)
+
+⚠️ **IMPORTANTE:** Como é um monorepo, cada serviço usa um Dockerfile específico na raiz.
 
 ### Serviço 1: API Gateway
 
 1. **"+ New"** → **"GitHub Repo"** → Selecione este repositório
-2. **Settings:**
-   - **Name:** `api-gateway`
-   - **Root Directory:** `/` (deixe vazio)
-   - **Build Command:** 
-     ```
-     npm install && npm run build -w @cm/shared && npm run build -w @cm/api-gateway
-     ```
-   - **Start Command:**
-     ```
-     npm run start -w @cm/api-gateway
-     ```
+2. **Settings → Build:**
+   - **Builder:** `Dockerfile`
+   - **Dockerfile Path:** `Dockerfile.api-gateway`
+   - **Watch Paths:** `packages/api-gateway/**,packages/shared/**`
 
-3. **Variables:**
+3. **Variables (adicione todas):**
    ```
-   DATABASE_URL=<sua_url_postgres>
+   DATABASE_URL=${{Postgres.DATABASE_URL}}
    NODE_ENV=production
    API_GATEWAY_PORT=3000
    CHATBOT_SERVICE_URL=http://chatbot-service.railway.internal:3001
    ```
 
-4. **Networking:** Gere um domínio público (este será o webhook do Gosac)
+4. **Settings → Networking:** 
+   - Clique em **"Generate Domain"** (este será o webhook do Gosac)
+   - Anote a URL gerada
 
 ---
 
 ### Serviço 2: Chatbot Service
 
 1. **"+ New"** → **"GitHub Repo"** → Selecione este repositório
-2. **Settings:**
-   - **Name:** `chatbot-service`
-   - **Build Command:**
-     ```
-     npm install && npm run build -w @cm/shared && npm run build -w @cm/chatbot-service
-     ```
-   - **Start Command:**
-     ```
-     npm run start -w @cm/chatbot-service
-     ```
+2. **Settings → Build:**
+   - **Builder:** `Dockerfile`
+   - **Dockerfile Path:** `Dockerfile.chatbot-service`
+   - **Watch Paths:** `packages/chatbot-service/**,packages/shared/**`
 
-3. **Variables:**
+3. **Variables (adicione todas):**
    ```
-   DATABASE_URL=<sua_url_postgres>
+   DATABASE_URL=${{Postgres.DATABASE_URL}}
    NODE_ENV=production
    CHATBOT_SERVICE_PORT=3001
    SCHEDULER_SERVICE_URL=http://scheduler-service.railway.internal:3002
@@ -84,28 +75,23 @@ Execute o script `scripts/init.sql` no seu PostgreSQL Railway:
    GOOGLE_SERVICE_ACCOUNT_JSON=<json_da_service_account>
    ```
 
-4. **Networking:** Apenas rede privada (internal)
+4. **Settings → Networking:** 
+   - **Private Networking:** Ativado (nome interno: `chatbot-service`)
 
 ---
 
 ### Serviço 3: Scheduler Service
 
 1. **"+ New"** → **"GitHub Repo"** → Selecione este repositório
-2. **Settings:**
-   - **Name:** `scheduler-service`
-   - **Build Command:**
-     ```
-     npm install && npm run build -w @cm/shared && npm run build -w @cm/scheduler-service
-     ```
-   - **Start Command:**
-     ```
-     npm run start -w @cm/scheduler-service
-     ```
+2. **Settings → Build:**
+   - **Builder:** `Dockerfile`
+   - **Dockerfile Path:** `Dockerfile.scheduler-service`
+   - **Watch Paths:** `packages/scheduler-service/**,packages/shared/**`
 
-3. **Variables:**
+3. **Variables (adicione todas):**
    ```
-   DATABASE_URL=<sua_url_postgres>
-   REDIS_URL=<sua_url_redis>
+   DATABASE_URL=${{Postgres.DATABASE_URL}}
+   REDIS_URL=${{Redis.REDIS_URL}}
    NODE_ENV=production
    SCHEDULER_SERVICE_PORT=3002
    TIMEOUT_MINUTES=30
@@ -113,7 +99,8 @@ Execute o script `scripts/init.sql` no seu PostgreSQL Railway:
    GOSAC_TOKEN=INTEGRATION 0ddfe6600ac270ae602f509c3bf247dd8b581fe6672dc48fcb2853d91328
    ```
 
-4. **Networking:** Apenas rede privada (internal)
+4. **Settings → Networking:** 
+   - **Private Networking:** Ativado (nome interno: `scheduler-service`)
 
 ---
 

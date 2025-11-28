@@ -1,0 +1,28 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar package.json raiz e dos pacotes necessários
+COPY package*.json ./
+COPY packages/shared/package*.json ./packages/shared/
+COPY packages/chatbot-service/package*.json ./packages/chatbot-service/
+
+# Instalar dependências
+RUN npm ci --omit=dev
+
+# Copiar código fonte
+COPY packages/shared ./packages/shared
+COPY packages/chatbot-service ./packages/chatbot-service
+
+# Build shared primeiro, depois chatbot-service
+RUN npm run build -w @cm/shared
+RUN npm run build -w @cm/chatbot-service
+
+# Expor porta
+EXPOSE 3001
+
+# Variável de ambiente para produção
+ENV NODE_ENV=production
+
+# Iniciar serviço
+CMD ["node", "packages/chatbot-service/dist/index.js"]

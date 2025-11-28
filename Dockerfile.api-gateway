@@ -1,0 +1,28 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copiar package.json raiz e dos pacotes necessários
+COPY package*.json ./
+COPY packages/shared/package*.json ./packages/shared/
+COPY packages/api-gateway/package*.json ./packages/api-gateway/
+
+# Instalar dependências
+RUN npm ci --omit=dev
+
+# Copiar código fonte
+COPY packages/shared ./packages/shared
+COPY packages/api-gateway ./packages/api-gateway
+
+# Build shared primeiro, depois api-gateway
+RUN npm run build -w @cm/shared
+RUN npm run build -w @cm/api-gateway
+
+# Expor porta
+EXPOSE 3000
+
+# Variável de ambiente para produção
+ENV NODE_ENV=production
+
+# Iniciar serviço
+CMD ["node", "packages/api-gateway/dist/index.js"]
